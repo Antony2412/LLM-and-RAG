@@ -9,23 +9,26 @@ from dotenv import load_dotenv
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = openai_key
 
+# Streamlit UI
+st.title("Language Translator")
+
+
+language = st.text_input("Enter the language you want to translate to:", "Malayalam")
+text_to_translate = st.text_area("Enter text to translate:", "Hi nice to meet you")
+
+if st.button("Translate"):
 #Creating llm
-llm = ChatOpenAI()
-#response = llm.invoke("Suggest me a title of movie in malayalam to watch ")
-#print(response.content)
+    llm = ChatOpenAI()
 
-#messages=[
-#    SystemMessage("Translate the following from English to hindi"),
-#    HumanMessage("Hi nice to meet you")
-#]
+    system_template = "Translate the follong form English to {language}"
 
-system_template = "Translate the follong form English to {language}"
+    prompt_template = ChatPromptTemplate.from_messages(
+        [("system",system_template),"user","{text}"]
+    )
 
-prompt_template = ChatPromptTemplate.from_messages(
-    [("system",system_template),"user","{text}"]
-)
+    prompt = prompt_template.invoke({"language":language ,"text":text_to_translate})
 
-prompt = prompt_template.invoke({"language":"Malayalam", "text":"Hi nice to meet you"})
-
-response=llm.invoke(prompt)
-print(response.content)
+    response=llm.invoke(prompt)
+    print(response.content)
+    st.subheader("Translated Text:")
+    st.write(response.content)
