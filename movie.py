@@ -5,6 +5,8 @@ from langchain_core.messages import SystemMessage,HumanMessage
 from langchain_core.prompts import ChatPromptTemplate,PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda
+from langchain_core.runnables import RunnableSequence
+
 from constants import openai_key
 from dotenv import load_dotenv
 
@@ -32,7 +34,9 @@ if st.button("Generate summary"):
         "Give me 2-3 lines summary of the movie{movie_title}")
     print_title_step = RunnableLambda(lambda x : print(x["movie_title"]))
     
-    composed_chain = {"movie_title":movie_titile_chain} |print_title_step |movie_summary_Prompt| llm | StrOutputParser()
+    #composed_chain = {"movie_title":movie_titile_chain} |print_title_step |movie_summary_Prompt| llm | StrOutputParser()
+    composed_chain = RunnableSequence({"movie_title":movie_titile_chain} ,print_title_step ,movie_summary_Prompt, llm , StrOutputParser())
+
     response = composed_chain.invoke({"language":language,"topic":topic})   
 
      
