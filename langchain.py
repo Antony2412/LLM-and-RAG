@@ -2,33 +2,28 @@ import os
 import streamlit as st
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage,HumanMessage
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate,PromptTemplate
 from constants import openai_key
 from dotenv import load_dotenv
+
 
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = openai_key
 
 # Streamlit UI
-st.title("Language Translator")
+st.title("Joke Generator")
 
 
-language = st.text_input("Enter the language you want to translate to:", "Malayalam")
-text_to_translate = st.text_area("Enter text to translate:", "Hi nice to meet you")
+topic = st.text_input("Enter a topic to generate a joke about:", "Cats")
 
-if st.button("Translate"):
+if st.button("Tell me a joke"):
 #Creating llm
     llm = ChatOpenAI()
 
-    system_template = "Translate the follong form English to {language}"
+    prompt_template2 = PromptTemplate.from_template("Tell me a joke about {topic}")
+    prompt2 = prompt_template2.invoke({"topic",topic})
 
-    prompt_template = ChatPromptTemplate.from_messages(
-        [("system",system_template),"user","{text}"]
-    )
-
-    prompt = prompt_template.invoke({"language":language ,"text":text_to_translate})
-
-    response=llm.invoke(prompt)
+    response=llm.invoke(prompt2)
     print(response.content)
-    st.subheader("Translated Text:")
+    st.subheader("Here's your joke:")
     st.write(response.content)
