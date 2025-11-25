@@ -3,6 +3,7 @@ import streamlit as st
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage,HumanMessage
 from langchain_core.prompts import ChatPromptTemplate,PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 from constants import openai_key
 from dotenv import load_dotenv
 
@@ -21,9 +22,12 @@ if st.button("Tell me a joke"):
     llm = ChatOpenAI()
 
     prompt_template2 = PromptTemplate.from_template("Tell me a joke about {topic}")
-    prompt2 = prompt_template2.invoke({"topic",topic})
+    #prompt2 = prompt_template2.invoke({"topic",topic})
 
-    response=llm.invoke(prompt2)
-    print(response.content)
+
+    joke_chain = prompt_template2 | llm | StrOutputParser()
+    response=joke_chain.invoke({"topic",topic})
+
+    print(response)
     st.subheader("Here's your joke:")
-    st.write(response.content)
+    st.write(response)
