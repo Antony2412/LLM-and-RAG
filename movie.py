@@ -6,6 +6,7 @@ from langchain_core.prompts import ChatPromptTemplate,PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda
 from langchain_core.runnables import RunnableSequence
+from langchain_core.runnables import RunnableParallel
 
 from constants import openai_key
 from dotenv import load_dotenv
@@ -32,6 +33,7 @@ if st.button("Generate summary"):
 #Summary Chain
     movie_summary_Prompt = PromptTemplate.from_template(
         "Give me 2-3 lines summary of the movie{movie_title}")
+    
     print_title_step = RunnableLambda(lambda x : print(x["movie_title"]))
     
     #composed_chain = {"movie_title":movie_titile_chain} |print_title_step |movie_summary_Prompt| llm | StrOutputParser()
@@ -39,8 +41,12 @@ if st.button("Generate summary"):
 
     response = composed_chain.invoke({"language":language,"topic":topic})   
 
-     
+    translate_malayalam_chain = ChatPromptTemplate.from_template("Translate the summary {summary} to malayalam") | llm| StrOutputParser()
+    translate_hindi_chain = ChatPromptTemplate.from_template("Translate the summary {summary} to hindi") | llm| StrOutputParser() 
+
+    translate_runnable = RunnableParallel(hindi = translate_hindi_chain, malyalam= translate_malayalam_chain)
+    ans = translate_runnable.invoke({"summary":response })
 
     # print(movie_titile_chain)
     st.subheader("Here's your summary :")
-    st.write(response)
+    st.write(ans)
